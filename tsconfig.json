@@ -7,14 +7,15 @@
     "emitDecoratorMetadata": true,
     "strict": true,
     "noImplicitReturns": true,
-    "noEmitOnError": true,
     "noUnusedLocals": true,
     "stripInternal": true,
     "sourceMap": true,
-    "skipDefaultLibCheck": true,
+    "lib": [
+      "es6"
+    ],
     "newLine": "LF",
-    "rootDir": "src",
-    "outDir": "bld",
+    "rootDir": ".",
+    "outDir": "dist",
     "plugins": [
       {
         "name": "tslint-language-service"

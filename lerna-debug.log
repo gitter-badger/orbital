@@ -1,0 +1,17 @@
+0 silly input []
+1 silly flags { _: [ 'bootstrap' ], args: [] }
+2 verbose rootPath /Users/wilsonhobbs/orbital/framework
+3 info version 2.4.0
+4 silly existsSync /Users/wilsonhobbs/orbital/framework/VERSION
+5 info ignore dist/*
+6 error EPACKAGES Errored while collecting packages and package graph
+7 error Error: No packages remain after ignoring 'dist/*'
+7 error     at Function.filterPackages (/usr/local/lib/node_modules/lerna/lib/PackageUtilities.js:227:17)
+7 error     at BootstrapCommand.runPreparations (/usr/local/lib/node_modules/lerna/lib/Command.js:320:60)
+7 error     at /usr/local/lib/node_modules/lerna/lib/Command.js:219:18
+7 error     at new Promise (<anonymous>)
+7 error     at BootstrapCommand.run (/usr/local/lib/node_modules/lerna/lib/Command.js:207:14)
+7 error     at Object.handler (/usr/local/lib/node_modules/lerna/lib/commands/BootstrapCommand.js:59:83)
+7 error     at Object.self.runCommand (/usr/local/lib/node_modules/lerna/node_modules/yargs/lib/command.js:233:22)
+7 error     at Object.Yargs.self._parseArgs (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:990:30)
+7 error     at Object.Yargs.self.parse (/usr/local/lib/node_modules/lerna/node_modules/yargs/yargs.js:532:23)

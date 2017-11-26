@@ -1,12 +1,11 @@
 {
-  "name": "clime",
+  "name": "orbital-srcs",
+  "private": true,
   "version": "0.5.9",
-  "description": "The command-line interface framework for TypeScript.",
-  "main": "bld/index.js",
-  "typings": "bld/index.d.ts",
+  "description": "The improved command-line interface framework for TypeScript.",
   "scripts": {
     "lint": "tslint -c tslint.json -p tsconfig.json --type-check",
-    "build": "yarn lint && rimraf bld && tsc",
+    "build": "rimraf dist && tsc",
     "bare-test": "mocha && baseman run bld/test/baseman",
     "pretest": "yarn build",
     "test": "nyc yarn bare-test",
@@ -20,6 +19,7 @@
     "typescript",
     "command",
     "cli",
+    "clime",
     "commander",
     "commander.js"
   ],
@@ -29,15 +29,6 @@
     "url": "https://github.com/vilic/clime/issues"
   },
   "homepage": "https://github.com/vilic/clime#readme",
-  "dependencies": {
-    "chalk": "^2.1.0",
-    "extendable-error": "^0.1.5",
-    "hyphenate": "^0.2.1",
-    "parse-messy-time": "^2.1.0",
-    "reflect-metadata": "^0.1.10",
-    "strip-ansi": "^4.0.0",
-    "villa": "^0.2.11"
-  },
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/chai-as-promised": "0.0.31",
@@ -50,6 +41,7 @@
     "chai-as-promised": "^7.1.1",
     "coveralls": "^2.13.1",
     "glob": "^7.1.2",
+    "lerna": "^2.4.0",
     "mocha": "^3.5.0",
     "nyc": "^11.1.0",
     "rimraf": "^2.6.1",

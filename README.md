@@ -2,9 +2,9 @@
 [![Build Status](https://travis-ci.org/vilic/clime.svg?branch=master)](https://travis-ci.org/vilic/clime)
 [![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_98.svg)](https://coveralls.io/github/vilic/clime?branch=master)
 
-# Clime
+# Orbital
 
-The command-line interface framework for TypeScript, fully tested with [baseman](https://github.com/vilic/baseman).
+The command-line interface framework for TypeScript, fully tested with [baseman](https://github.com/vilic/baseman). Orbital is a fork of CLime.
 
 ## Prerequisites
 

@@ -1,6 +1,7 @@
 {
   "extends": "vts",
   "rules": {
-    "no-require-imports": false
+    "no-require-imports": false,
+    "no-return-await": false
   }
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"subcases.js","sourceRoot":"","sources":["../../../../../../../packages/core/src/test/baseman/invalid-usage/case-no-metadata-1/subcases.ts"],"names":[],"mappings":";;AAAA,kBAAe;IACb;QACE,IAAI,EAAE,WAAW;QACjB,IAAI,EAAE,CAAC,QAAQ,CAAC;KACjB;IACD;QACE,IAAI,EAAE,aAAa;QACnB,IAAI,EAAE,EAAE;KACT;CACF,CAAC"}
