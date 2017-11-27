@@ -1,9 +1,9 @@
-import * as Reflection from '../util/reflection';
-import * as assert from 'assert';
-
-import { Executable } from '../command/executable';
+import { Reflection } from '../util';
 import { ParamsOptions } from './params-options';
+import { Executable } from '../command';
+
 import hyphenate from 'hyphenate';
+import * as assert from 'assert';
 
 /**
  * The `@Params()` decorator that decorates one array parameter of method

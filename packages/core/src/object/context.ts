@@ -1,4 +1,5 @@
 import { ContextOptions } from './context-options';
+
 /**
  * Command context.
  */

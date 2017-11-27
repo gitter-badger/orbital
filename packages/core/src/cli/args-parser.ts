@@ -1,12 +1,12 @@
-import { HelpProvider } from "../help/help-provider";
-import { ParamDefinition } from '../param/param-definition';
-import { ParamsDefinition } from '../params/params-definition';
-import { OptionDefinition } from '../option/option-definition';
-import { Executable } from '../command/executable';
-import { ParsedArgs } from "./parsed-args";
-import { UsageError } from "../error";
-import { GeneralValidator } from "../validation/general-validator";
 import { buildCastingContext, cast, CastableType, Context } from "../object";
+import { GeneralValidator } from "../validation";
+import { ParamsDefinition } from '../params';
+import { OptionDefinition } from '../option';
+import { ParamDefinition } from '../param';
+import { ParsedArgs } from "./parsed-args";
+import { Executable } from '../command';
+import { HelpProvider } from "../help";
+import { UsageError } from "../error";
 
 export class ArgsParser {
   private helpProvider: HelpProvider;

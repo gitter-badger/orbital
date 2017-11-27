@@ -1,6 +1,6 @@
-import { HelpProvider } from '../help/help-provider';
 import { ExpectedError } from './expected-error';
-import { Printable } from '../object/printable';
+import { HelpProvider } from '../help';
+import { Printable } from '../object';
 
 export class UsageError extends ExpectedError implements Printable {
   constructor(

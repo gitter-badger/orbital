@@ -1,11 +1,7 @@
 import * as villa from 'villa';
 
 import { ArrayCastingOptions } from './array-casting-options';
-import { CastableType } from '../../object/castable-type';
-import { CastingContext } from '../../object/casting-context';
-import { StringCastable } from '../../object/string-castable';
-import { buildCastingContext } from '../../object/util';
-import { cast } from '../../object/cast';
+import { CastableType, CastingContext, StringCastable, buildCastingContext, cast } from '../../object';
 
 export function array<T>(
   type: CastableType<any>,

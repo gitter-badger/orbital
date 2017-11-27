@@ -1,7 +1,6 @@
 import { buildCastingContext, isStringCastable } from './util';
-
-import { CastableType } from './castable-type';
 import { CastingContext } from './casting-context';
+import { CastableType } from './castable-type';
 import { ExpectedError } from '../error';
 
 export async function cast<T>(
@@ -33,7 +32,7 @@ export async function cast<T>(
       if (/^(?:f|false)$/i.test(source)) {
         value = false;
       } else {
-        let n = Number(source);
+        const n = Number(source);
         value = isNaN(n) ? true : Boolean(n);
       }
 

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
 import * as villa from 'villa';
+import * as fs from 'fs';
 
 export async function safeStat(path: string): Promise<fs.Stats | undefined> {
   return await villa.call(fs.stat, path).catch(villa.bear);

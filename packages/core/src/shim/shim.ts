@@ -1,11 +1,10 @@
 // tslint:disable:no-console
-
 import * as Util from 'util';
+import * as chalk from 'chalk';
 
-import { CLI } from '../cli/cli';
+import { isPrintable } from '../object';
 import { ExpectedError } from '../error';
-import chalk from 'chalk';
-import { isPrintable } from '../object/util';
+import { CLI } from '../cli';
 
 /**
  * A Clime command line interface shim for pure Node.js.
@@ -27,7 +26,6 @@ export class Shim {
       if (isPrintable(result)) {
         await result.print(process.stdout, process.stderr);
       } else if (result !== undefined) {
-        // tslint:disable-next-line:no-console
         console.log(result);
       }
     } catch (error) {

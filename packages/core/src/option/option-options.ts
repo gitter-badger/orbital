@@ -1,5 +1,5 @@
-import { CastableType } from '../object/castable-type';
-import { GeneralValidator } from '../validation/general-validator';
+import { GeneralValidator } from '../validation';
+import { CastableType } from '../object';
 
 /**
  * Options for command options.

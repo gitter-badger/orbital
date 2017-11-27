@@ -1,4 +1,4 @@
-import { GeneralValidator } from '../../validation/general-validator';
+import { GeneralValidator } from '../../validation';
 
 export interface ArrayCastingOptions<T> {
   /** Separator to split the input string, defaults to ",". */

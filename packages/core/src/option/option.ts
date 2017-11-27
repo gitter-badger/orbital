@@ -1,8 +1,8 @@
+import hyphenate from 'hyphenate';
 import * as assert from 'assert';
 
 import { OptionOptions } from './option-options';
 import { Options } from './options';
-import hyphenate from 'hyphenate';
 
 /**
  * The `Option()` decorator that decorates concrete class of `Options`.

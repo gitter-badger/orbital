@@ -1,7 +1,7 @@
-import { Context } from '../object/context';
-import { Options } from '../option/options';
 import { CommandOptions } from './command-options';
 import { Executable } from './executable';
+import { Context } from '../object';
+import { Options } from '../option';
 
 /**
  * The `Command()` decorator that decorates concrete class of `Command`.
@@ -84,10 +84,3 @@ if no other decorator applied');
     target.decorated = true;
   };
 }
-
-/**
- * The `metadata` decorator does nothing at runtime. It is only used to have
- * TypeScript emits type metadata for `execute` method that has no other
- * decorators.
- */
-export const Metadata: MethodDecorator = () => ({ });

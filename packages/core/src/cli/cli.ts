@@ -4,24 +4,29 @@ import * as villa from 'villa';
 import { existsDir, existsFile } from '../util/fs';
 
 import { HelpInfo } from '../help';
-import { Context } from '../object/context';
-import { Executable } from '../command/executable';
-import { CommandRoot } from '../command/command-root';
-import { CommandEntry } from '../command/command-entry';
-import { CommandModule } from '../command/command-module';
-import { GeneralCommandRoot } from '../command/general-command-root';
-
-import { PreProcessResult } from './preprocess-result';
-import { SubcommandDefinition } from '../subcommand/subcommand-definition';
-import { SubcommandSearchContext } from '../subcommand/subcommand-search-context';
-import { SubcommandSearchBaseResult } from '../subcommand/subcommand-base-search-result';
-import { SubcommandSearchInProgressContext } from '../subcommand/subcommand-search-in-progress-context';
-
-import { ArgsParser } from './args-parser';
+import { Context } from '../object';
 import { UsageError } from '../error';
+import { ArgsParser } from './args-parser';
+import { PreProcessResult } from './preprocess-result';
+
+import {
+  Executable,
+  CommandEntry,
+  CommandRoot,
+  CommandModule,
+  GeneralCommandRoot,
+} from '../command';
+
+import {
+  SubcommandDefinition,
+  SubcommandSearchContext,
+  SubcommandSearchBaseResult,
+  SubcommandSearchInProgressContext,
+} from '../subcommand';
+import { HELP_OPTION_REGEX, COMMAND_NAME_REGEX } from '../util';
 
 /**
- * Clime command line interface.
+ * Orbital command line interface.
  */
 export class CLI {
   roots: CommandRoot[];

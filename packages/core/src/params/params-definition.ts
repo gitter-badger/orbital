@@ -1,5 +1,5 @@
-import { CastableType } from '../object/castable-type';
-import { GeneralValidator } from '../validation/general-validator';
+import { CastableType } from '../object';
+import { GeneralValidator } from '../validation';
 
 /** @internal */
 export interface ParamsDefinition<T> {

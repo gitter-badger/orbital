@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as villa from 'villa';
 
-import { CastingContext } from '../../object/casting-context';
+import { CastingContext } from '../../object';
 import { ExpectedError } from '../../error';
 
 export class Directory {
@@ -21,7 +21,7 @@ export class Directory {
   }
 
   async assert(exists = true): Promise<void> {
-    let stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
+    const stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
 
     if (exists) {
       if (!stats) {

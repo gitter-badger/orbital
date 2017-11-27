@@ -1,5 +1,5 @@
 import { CastingContext } from './casting-context';
-import { GeneralValidator } from '../validation/general-validator';
+import { GeneralValidator } from '../validation';
 
 export interface CastingContextExtension<T> {
   name: string;

@@ -1,5 +1,5 @@
-import { CommandModule } from '../command/command-module';
-import { SubcommandSearchContext } from '../subcommand/subcommand-search-context';
+import { SubcommandSearchContext } from '../subcommand';
+import { CommandModule } from '../command';
 
 export interface PreProcessResult {
   sequence: string[];

@@ -1,4 +1,4 @@
-import { CommandModule } from '../command/command-module';
+import { CommandModule } from '../command';
 
 export interface SubcommandSearchBaseResult {
   name: string;

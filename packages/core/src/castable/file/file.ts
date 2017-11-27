@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as villa from 'villa';
 
-import { CastingContext } from '../../object/casting-context';
+import { CastingContext } from '../../object';
 import { ExpectedError } from '../../error';
 
 export class File {

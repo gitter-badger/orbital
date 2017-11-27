@@ -1,5 +1,5 @@
-import { CommandClass } from '../command/command-class';
-import { SubcommandDefinition } from '../subcommand/subcommand-definition';
+import { SubcommandDefinition } from '../subcommand';
+import { CommandClass } from './command-class';
 
 export interface CommandModule {
   default?: CommandClass;
