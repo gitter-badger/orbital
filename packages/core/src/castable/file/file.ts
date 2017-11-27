@@ -39,12 +39,12 @@ export class File {
   }
 
   async json<T>(encoding?: string): Promise<T> {
-    let json = await this.text(encoding);
+    const json = await this.text(encoding);
     return JSON.parse(json);
   }
 
   async assert(exists = true): Promise<void> {
-    let stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
+    const stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
 
     if (exists) {
       if (!stats) {
@@ -62,14 +62,14 @@ export class File {
   async exists(): Promise<boolean>;
   async exists(extensions: string[]): Promise<string | undefined>;
   async exists(extensions?: string[]): Promise<boolean | string | undefined> {
-    let extensionsSpecified = !!extensions;
+    const extensionsSpecified = !!extensions;
 
-    for (let extension of extensions || ['']) {
-      let path = this.fullName + extension;
-      let stats = await villa.call(fs.stat, path).catch(villa.bear);
+    for (const extension of extensions || ['']) {
+      const filePath = this.fullName + extension;
+      const stats = await villa.call(fs.stat, filePath).catch(villa.bear);
 
       if (stats && stats.isFile()) {
-        return extensionsSpecified ? path : true;
+        return extensionsSpecified ? filePath : true;
       }
     }
 

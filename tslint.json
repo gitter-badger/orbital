@@ -1,8 +1,12 @@
 {
-  "extends": "vts",
+  "extends": "tslint:recommended",
   "rules": {
-    "no-require-imports": false,
-    "no-return-await": false,
-    "sort-imopir"
+    "quotemark": "single",
+    "ordered-imports": false,
+    "interface-name": false,
+    "member-access": false,
+    "member-ordering": false,
+    "array-type": false,
+    "arrow-parens": false
   }
 }

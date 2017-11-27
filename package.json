@@ -46,7 +46,7 @@
     "nyc": "^11.1.0",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.4.16",
-    "tslint": "^5.6.0",
+    "tslint": "^5.8.0",
     "tslint-language-service": "^0.9.6",
     "typescript": "^2.6.1",
     "vts": "^5.6.1"

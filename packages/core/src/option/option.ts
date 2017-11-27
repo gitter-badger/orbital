@@ -22,14 +22,9 @@ export function Option<T>({
   assert(!flag || /^[a-z]$/i.test(flag), 'The option flag is expected to be a letter');
 
   return (target: Options, name: string) => {
-    let constructor = target.constructor as typeof Options;
-    let definitions = constructor.definitions;
-
-    if (definitions) {
-      definitions = constructor.definitions;
-    } else {
-      definitions = constructor.definitions = [];
-    }
+    const constructor = target.constructor as typeof Options;
+    const definitions = constructor.definitions || [];
+    constructor.definitions = definitions;
 
     type = type || Reflect.getMetadata('design:type', target, name) as Orbital.Constructor<T>;
 
@@ -40,16 +35,16 @@ export function Option<T>({
     }
 
     definitions.push({
-      name: optionName,
-      key: name,
-      flag,
-      placeholder,
-      toggle: !!toggle,
-      type,
-      required: !!required,
-      validators,
       default: defaultValue,
       description,
+      flag,
+      key: name,
+      name: optionName,
+      placeholder,
+      required: !!required,
+      toggle: !!toggle,
+      type,
+      validators,
     });
   };
 }

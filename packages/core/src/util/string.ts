@@ -3,17 +3,17 @@ import * as stripAnsi from 'strip-ansi';
 export type TableRow = (string | undefined)[];
 
 export function buildTableOutput(rows: TableRow[], {
-  separators = '  ' as string | string[],
   indent = 0 as string | number,
+  separators = '  ' as string | string[],
 } = {}): string {
-  let maxTextLengths: number[] = [];
+  const maxTextLengths: number[] = [];
 
-  for (let row of rows) {
+  for (const row of rows) {
     let lastNoneEmptyIndex = 0;
 
     for (let i = 0; i < row.length; i++) {
-      let text = row[i] || '';
-      let textLength = stripAnsi(text).length;
+      const text = row[i] || '';
+      const textLength = stripAnsi(text).length;
 
       if (textLength) {
         lastNoneEmptyIndex = i;
@@ -29,7 +29,7 @@ export function buildTableOutput(rows: TableRow[], {
     row.splice(lastNoneEmptyIndex + 1);
   }
 
-  let indentStr = typeof indent === 'string' ?
+  const indentStr = typeof indent === 'string' ?
     indent :
     new Array(indent + 1).join(' ');
 
@@ -39,10 +39,10 @@ export function buildTableOutput(rows: TableRow[], {
       let line = indentStr;
 
       for (let i = 0; i < row.length; i++) {
-        let text = row[i] || '';
-        let textLength = stripAnsi(text).length;
+        const text = row[i] || '';
+        const textLength = stripAnsi(text).length;
 
-        let maxLength = maxTextLengths[i];
+        const maxLength = maxTextLengths[i];
 
         line += text;
         line += new Array(maxLength - textLength + 1).join(' ');
@@ -62,7 +62,7 @@ export function buildTableOutput(rows: TableRow[], {
 }
 
 export function indent(text: string, indent: number | string): string {
-  let indentStr = typeof indent === 'string' ?
+  const indentStr = typeof indent === 'string' ?
     indent.replace(/\r/g, '') :
     Array(indent + 1).join(' ');
 

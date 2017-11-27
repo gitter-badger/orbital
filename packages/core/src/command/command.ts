@@ -1,7 +1,7 @@
-import { CommandOptions } from './command-options';
 import { Context } from '../object/context';
-import { Executable } from './executable';
 import { Options } from '../option/options';
+import { CommandOptions } from './command-options';
+import { Executable } from './executable';
 
 /**
  * The `Command()` decorator that decorates concrete class of `Command`.
@@ -12,15 +12,15 @@ export function Command(options: CommandOptions = {}) {
     target.description = options.description;
 
     // Validate param definitions.
-    let paramDefinitions = target.paramDefinitions || [];
-    let paramsDefinition = target.paramsDefinition;
-    let variadicParamsRequired = paramsDefinition && paramsDefinition.required;
+    const paramDefinitions = target.paramDefinitions || [];
+    const paramsDefinition = target.paramsDefinition;
+    const variadicParamsRequired = paramsDefinition && paramsDefinition.required;
 
     if (paramDefinitions.length) {
       let hasOptional = false;
 
       for (let i = 0; i < paramDefinitions.length; i++) {
-        let definition = paramDefinitions[i];
+        const definition = paramDefinitions[i];
 
         if (!definition) {
           throw new Error(`Expecting parameter definition at position ${i}`);
@@ -49,15 +49,15 @@ export function Command(options: CommandOptions = {}) {
     }
 
     // Prepare option definitions.
-    let types = Reflect.getMetadata('design:paramtypes', target.prototype, 'execute') as Orbital.Constructor<any>[];
+    const types = Reflect.getMetadata('design:paramtypes', target.prototype, 'execute') as Orbital.Constructor<any>[];
 
     if (!types) {
       throw new Error('No parameter type information found, please add `@Metadata` decorator to method `execute` \
 if no other decorator applied');
     }
 
-    let optionsConstructorCandidateIndex = paramDefinitions.length + (target.paramsDefinition ? 1 : 0);
-    let optionsConstructorCandidate = types[optionsConstructorCandidateIndex];
+    const optionsConstructorCandidateIndex = paramDefinitions.length + (target.paramsDefinition ? 1 : 0);
+    const optionsConstructorCandidate = types[optionsConstructorCandidateIndex];
 
     let contextConstructorCandidateIndex: number;
 
@@ -70,7 +70,7 @@ if no other decorator applied');
       contextConstructorCandidateIndex = optionsConstructorCandidateIndex;
     }
 
-    let contextConstructorCandidate = types[contextConstructorCandidateIndex];
+    const contextConstructorCandidate = types[contextConstructorCandidateIndex];
 
     if (
       contextConstructorCandidate && (
@@ -90,4 +90,4 @@ if no other decorator applied');
  * TypeScript emits type metadata for `execute` method that has no other
  * decorators.
  */
-export const Metadata: MethodDecorator = () => { };
+export const Metadata: MethodDecorator = () => ({ });

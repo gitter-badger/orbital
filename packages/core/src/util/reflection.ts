@@ -1,12 +1,12 @@
-export function parseFunctionParameterNames(fn: Function): string[] | undefined {
-  let groups = fn
+export function parseFunctionParameterNames(fn: () => any): string[] | undefined {
+  const groups = fn
     .toString()
     .match(/^[^{=]*\(([\w\d$-,\s]*)\)/);
 
   return groups ? groups[1].trim().split(/\s*,\s*/) : undefined;
 }
 
-export function getFunctionParameterName(fn: Function, index: number): string {
+export function getFunctionParameterName(fn: () => any, index: number): string {
   let paramNames: string[] | undefined;
 
   if ((fn as any).__paramNames) {

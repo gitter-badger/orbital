@@ -20,7 +20,7 @@ export function Params<T>({
   return (target: Executable, name: 'execute', index: number) => {
     assert.equal(name, 'execute');
 
-    let constructor = target.constructor as typeof Executable;
+    const constructor = target.constructor as typeof Executable;
 
     if (constructor.paramsDefinition) {
       throw new Error('Can only define one `params` parameter');
@@ -35,12 +35,12 @@ export function Params<T>({
     }
 
     constructor.paramsDefinition = {
-      name: paramName,
-      index,
-      type,
-      required: !!required,
-      validators,
       description,
+      index,
+      name: paramName,
+      required: !!required,
+      type,
+      validators,
     };
   };
 }

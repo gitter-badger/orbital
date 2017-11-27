@@ -1,29 +1,24 @@
 import * as Path from 'path';
 import * as villa from 'villa';
 
-import { existsDir, existsFile, } from '../util/fs';
+import { existsDir, existsFile } from '../util/fs';
 
-import { CastableType } from '../object/castable-type';
-import { CommandEntry } from '../command/command-entry';
-import { CommandModule } from '../command/command-module';
-import { CommandRoot } from '../command/command-root';
+import { HelpInfo } from '../help';
 import { Context } from '../object/context';
 import { Executable } from '../command/executable';
-import { ExpectedError } from '../error';
+import { CommandRoot } from '../command/command-root';
+import { CommandEntry } from '../command/command-entry';
+import { CommandModule } from '../command/command-module';
 import { GeneralCommandRoot } from '../command/general-command-root';
-import { GeneralValidator } from '../validation/general-validator';
-import { HelpInfo } from '../help/help';
-import { OptionDefinition } from '../option/option-definition';
-import { ParamDefinition } from '../param/param-definition';
-import { ParamsDefinition } from '../params/params-definition';
+
 import { PreProcessResult } from './preprocess-result';
-import { Printable } from '../object/printable';
 import { SubcommandDefinition } from '../subcommand/subcommand-definition';
-import { SubcommandSearchBaseResult } from '../subcommand/subcommand-base-search-result';
 import { SubcommandSearchContext } from '../subcommand/subcommand-search-context';
+import { SubcommandSearchBaseResult } from '../subcommand/subcommand-base-search-result';
 import { SubcommandSearchInProgressContext } from '../subcommand/subcommand-search-in-progress-context';
-import { buildCastingContext } from '../object/util';
-import { cast } from '../object/cast';
+
+import { ArgsParser } from './args-parser';
+import { UsageError } from '../error';
 
 /**
  * Clime command line interface.
@@ -38,7 +33,7 @@ export class CLI {
     roots: GeneralCommandRoot | GeneralCommandRoot[],
   ) {
     roots = Array.isArray(roots) ? roots : [roots];
-    this.roots = roots.map(root => {
+    this.roots = roots.map((root) => {
       let label: string | undefined;
       let path: string;
 
@@ -72,7 +67,7 @@ export class CLI {
       cwd = process.cwd();
     }
 
-    let {
+    const {
       sequence,
       args,
       path,
@@ -84,35 +79,35 @@ export class CLI {
     let description: string | undefined;
 
     if (module) {
-      let TargetCommand = module.default;
+      const targetCommand = module.default;
 
-      if (TargetCommand && TargetCommand.prototype instanceof Executable) {
+      if (targetCommand && targetCommand.prototype instanceof Executable) {
         // This is a command module with an actual command.
 
-        if (!TargetCommand.decorated) {
+        if (!targetCommand.decorated) {
           throw new TypeError(`Command defined in module "${path}" does not seem to be initialized, \
 make sure to decorate it with \`@command()\``);
         }
 
-        TargetCommand.path = path!;
-        TargetCommand.helpBuildingContexts = searchContexts.map(context => {
+        targetCommand.path = path!;
+        targetCommand.helpBuildingContexts = searchContexts.map((ctxt) => {
           return {
-            label: context.label,
-            dir: context.searchBase,
+            dir: ctxt.searchBase,
+            label: ctxt.label,
           };
         });
-        TargetCommand.sequence = sequence;
+        targetCommand.sequence = sequence;
 
-        let argsParser = new ArgsParser(TargetCommand);
-        let parsedArgs = await argsParser.parse(sequence, args, cwd, contextExtension as object);
+        const argsParser = new ArgsParser(targetCommand);
+        const parsedArgs = await argsParser.parse(sequence, args, cwd, contextExtension as object);
 
         if (!parsedArgs) {
-          return await HelpInfo.build(TargetCommand);
+          return await HelpInfo.build(targetCommand);
         }
 
-        let command = new TargetCommand();
+        const command = new targetCommand();
 
-        let {
+        const {
           args: commandArgs,
           extraArgs: commandExtraArgs,
           options: commandOptions,
@@ -132,15 +127,15 @@ make sure to decorate it with \`@command()\``);
       }
     }
 
-    let helpInfo = await HelpInfo.build({
-      sequence,
-      contexts: searchContexts.map(context => {
+    const helpInfo = await HelpInfo.build({
+      contexts: searchContexts.map((ctxt) => {
         return {
-          label: context.label,
-          dir: context.searchBase,
+          dir: ctxt.searchBase,
+          label: ctxt.label,
         };
       }),
       description,
+      sequence,
     });
 
     if (possibleUnknownCommandName) {
@@ -160,21 +155,21 @@ make sure to decorate it with \`@command()\``);
 
   private async preProcessSearchBase(searchBase: string, possibleCommandName: string, aliasMap: Map<string, string>):
     Promise<SubcommandSearchBaseResult> {
-    let definitions = await CLI.getSubcommandDefinitions(searchBase);
-    let definitionMap = new Map<string, SubcommandDefinition>();
+    const definitions = await CLI.getSubcommandDefinitions(searchBase);
+    const definitionMap = new Map<string, SubcommandDefinition>();
 
-    for (let definition of definitions) {
+    for (const definition of definitions) {
       definitionMap.set(definition.name, definition);
 
-      let aliases = definition.aliases || definition.alias && [definition.alias];
+      const aliases = definition.aliases || definition.alias && [definition.alias];
 
       if (!aliases) {
         continue;
       }
 
-      for (let alias of aliases) {
+      for (const alias of aliases) {
         if (aliasMap.has(alias)) {
-          let targetName = aliasMap.get(alias);
+          const targetName = aliasMap.get(alias);
 
           if (targetName !== definition.name) {
             throw new Error(`Alias "${alias}" already exists and points to "${targetName}" \
@@ -193,13 +188,13 @@ instead of "${definition.name}"`);
 
     searchBase = Path.join(searchBase, possibleCommandName);
 
-    let entry = await CLI.findEntryBySearchBase(searchBase);
+    const entry = await CLI.findEntryBySearchBase(searchBase);
 
     return {
-      name: possibleCommandName,
-      searchBase: existsDir(searchBase) ? searchBase : undefined,
-      path: entry && entry.path,
       module: entry && entry.module,
+      name: possibleCommandName,
+      path: entry && entry.path,
+      searchBase: existsDir(searchBase) ? searchBase : undefined,
     };
   }
 
@@ -207,7 +202,7 @@ instead of "${definition.name}"`);
    * Mapping the command line arguments to a specific command file.
    */
   private async preProcessArguments(argv: string[]): Promise<PreProcessResult> {
-    let sequence = [this.name];
+    const sequence = [this.name];
 
     let possibleUnknownCommandName: string | undefined;
 
@@ -233,10 +228,10 @@ instead of "${definition.name}"`);
 
       return {
         label: root.label,
-        name: this.name,
-        searchBase: root.path,
-        path,
         module,
+        name: this.name,
+        path,
+        searchBase: root.path,
       };
     });
 
@@ -247,17 +242,17 @@ instead of "${definition.name}"`);
         break;
       }
 
-      let aliasMap = new Map<string, string>();
+      const aliasMap = new Map<string, string>();
 
-      let nextContexts: SubcommandSearchInProgressContext[] = await villa.map(contexts, async context => {
-        let searchBaseContext = await this.preProcessSearchBase(context.searchBase, possibleCommandName, aliasMap);
+      const nextContexts: SubcommandSearchInProgressContext[] = await villa.map(contexts, async (context) => {
+        const searchBaseContext = await this.preProcessSearchBase(context.searchBase, possibleCommandName, aliasMap);
         return {
           label: context.label,
           ...searchBaseContext,
         };
       });
 
-      let targetContexts = nextContexts.filter(context => !!context.path);
+      const targetContexts = nextContexts.filter((ctxt) => !!ctxt.path);
 
       if (!targetContexts.length) {
         possibleUnknownCommandName = possibleCommandName;
@@ -266,8 +261,8 @@ instead of "${definition.name}"`);
 
       let targetContext = targetContexts[0];
 
-      for (let context of targetContexts.slice(1)) {
-        let module = context.module;
+      for (const context of targetContexts.slice(1)) {
+        const module = context.module;
         if (module && module.default) {
           targetContext = context;
         }
@@ -281,16 +276,16 @@ instead of "${definition.name}"`);
       argsIndex = i + 1;
       sequence.push(possibleCommandName);
 
-      contexts = nextContexts.filter(context => !!context.searchBase) as SubcommandSearchContext[];
+      contexts = nextContexts.filter((ctxt) => !!ctxt.searchBase) as SubcommandSearchContext[];
     }
 
     return {
-      sequence,
       args: argv.slice(argsIndex),
-      path: targetPath,
       module: targetModule,
-      searchContexts: contexts,
+      path: targetPath,
       possibleUnknownCommandName,
+      searchContexts: contexts,
+      sequence,
     };
   }
 
@@ -301,7 +296,7 @@ instead of "${definition.name}"`);
     commandOptions: Orbital.Dictionary<any> | undefined,
     context: Context | undefined,
   ): any {
-    let executeMethodArgs: any[] = commandArgs.concat();
+    const executeMethodArgs: any[] = commandArgs.concat();
 
     if (commandExtraArgs) {
       executeMethodArgs.push(commandExtraArgs);
@@ -323,7 +318,7 @@ instead of "${definition.name}"`);
    * Get subcommands definition written as `export subcommands = [...]`.
    */
   static async getSubcommandDefinitions(searchBase: string): Promise<SubcommandDefinition[]> {
-    let entry = await this.findEntryBySearchBase(searchBase);
+    const entry = await this.findEntryBySearchBase(searchBase);
 
     if (!entry || !entry.module) {
       return [];
@@ -333,347 +328,27 @@ instead of "${definition.name}"`);
   }
 
   private static async findEntryBySearchBase(searchBase: string): Promise<CommandEntry | undefined> {
-    let possiblePaths = [
+    const possiblePaths = [
       `${searchBase}.js`,
       Path.join(searchBase, 'default.js'),
     ];
 
-    for (let possiblePath of possiblePaths) {
+    for (const possiblePath of possiblePaths) {
       if (await existsFile(possiblePath)) {
         return {
-          path: possiblePath,
           module: require(possiblePath) as CommandModule,
+          path: possiblePath,
         };
       }
     }
 
     if (await existsDir(searchBase)) {
       return {
-        path: searchBase,
         module: undefined,
+        path: searchBase,
       };
     }
 
     return undefined;
-  }
-}
-
-export interface ParsedArgs {
-  args: any[];
-  extraArgs?: any[];
-  options?: Orbital.Dictionary<any>;
-  context?: Context;
-}
-
-class ArgsParser {
-  private helpProvider: HelpProvider;
-
-  private paramDefinitions: ParamDefinition<any>[];
-  private requiredParamsNumber: number;
-
-  private paramsDefinition: ParamsDefinition<any>;
-
-  private optionDefinitionMap: Map<string, OptionDefinition<any>>;
-  private optionFlagMapping: Map<string, string>;
-
-  private optionsConstructor: Orbital.Constructor<Orbital.Dictionary<any>>;
-  private optionDefinitions: OptionDefinition<any>[];
-
-  private contextConstructor: typeof Context;
-
-  constructor(command: typeof Executable) {
-    this.helpProvider = command;
-
-    this.paramDefinitions = command.paramDefinitions;
-    this.requiredParamsNumber = command.requiredParamsNumber;
-
-    this.paramsDefinition = command.paramsDefinition;
-
-    this.optionsConstructor = command.optionsConstructor;
-    this.optionDefinitions = command.optionDefinitions;
-
-    this.contextConstructor = command.contextConstructor;
-
-    if (this.optionDefinitions) {
-      this.optionFlagMapping = new Map<string, string>();
-      this.optionDefinitionMap = new Map<string, OptionDefinition<any>>();
-
-      for (let definition of this.optionDefinitions) {
-        let {
-          name,
-          flag,
-        } = definition;
-
-        this.optionDefinitionMap.set(name, definition);
-
-        if (flag) {
-          this.optionFlagMapping.set(flag, name);
-        }
-      }
-    }
-  }
-
-  async parse(
-    sequence: string[],
-    args: string[],
-    cwd: string,
-    contextExtension: object | undefined,
-  ): Promise<ParsedArgs | undefined> {
-    let that = this;
-
-    let ContextConstructor: Orbital.Constructor<Context> = this.contextConstructor || Context;
-    let context = new ContextConstructor(
-      {
-        cwd,
-        commands: sequence,
-      },
-      contextExtension,
-    );
-
-    args = args.concat();
-
-    let OptionConstructor = this.optionsConstructor;
-    let optionDefinitions = this.optionDefinitions;
-    let optionDefinitionMap = this.optionDefinitionMap || new Map<string, OptionDefinition<any>>();
-    let optionFlagMapping = this.optionFlagMapping || new Map<string, string>();
-    let requiredOptionSet: Set<string> | undefined;
-
-    let paramDefinitions = this.paramDefinitions || [];
-    let pendingParamDefinitions = paramDefinitions.concat();
-
-    let paramsDefinition = this.paramsDefinition;
-    let argsNumber = args.length;
-
-    let commandArgs = [] as any[];
-    let commandExtraArgs = paramsDefinition && [] as any[];
-    let commandOptions: Orbital.Dictionary<any> | undefined;
-
-    if (OptionConstructor) {
-      commandOptions = new OptionConstructor();
-      requiredOptionSet = new Set<string>();
-
-      for (let definition of optionDefinitions) {
-        let {
-          name,
-          key,
-          type,
-          required,
-          validators,
-          toggle,
-          default: defaultValue,
-        } = definition;
-
-        if (required) {
-          requiredOptionSet.add(name);
-        }
-
-        if (toggle) {
-          commandOptions[key] = false;
-        } else {
-          commandOptions[key] = typeof defaultValue === 'string' ?
-            await castArgument(defaultValue, name, type, validators, true) :
-            defaultValue;
-        }
-      }
-    }
-
-    while (args.length) {
-      let arg = args.shift() as string;
-
-      if (
-        arg === '-?' ||
-        (arg === '-h' && !optionFlagMapping.has('h')) ||
-        (arg === '--help' && !optionDefinitionMap.has('help'))
-      ) {
-        return undefined;
-      }
-
-      if (arg[0] === '-' && isNaN(Number(arg))) {
-        if (arg[1] === '-') {
-          await consumeToggleOrOption(arg.substr(2));
-        } else {
-          await consumeFlags(arg.substr(1));
-        }
-      } else if (pendingParamDefinitions.length) {
-        let definition = pendingParamDefinitions.shift() as ParamDefinition<any>;
-        let casted = await castArgument(
-          arg,
-          definition.name,
-          definition.type,
-          definition.validators,
-          false,
-        );
-        commandArgs.push(casted);
-      } else if (paramsDefinition) {
-        let casted = await castArgument(
-          arg,
-          paramsDefinition.name,
-          paramsDefinition.type,
-          paramsDefinition.validators,
-          false,
-        );
-        commandExtraArgs.push(casted);
-      } else {
-        throw new UsageError(
-          `Expecting ${paramDefinitions.length} parameter(s) at most but got ${argsNumber} instead`,
-          this.helpProvider,
-        );
-      }
-    }
-
-    {
-      let expecting = this.requiredParamsNumber;
-      let got = commandArgs.length;
-
-      if (got < expecting) {
-        let missingArgNames = pendingParamDefinitions
-          .slice(0, expecting - got)
-          .map(definition => `\`${definition.name}\``);
-
-        throw new UsageError(`Expecting parameter(s) ${missingArgNames.join(', ')}`, this.helpProvider);
-      }
-    }
-
-    let missingOptionNames = requiredOptionSet && Array.from(requiredOptionSet);
-
-    if (missingOptionNames && missingOptionNames.length) {
-      throw new UsageError(`Missing required option(s) \`${missingOptionNames.join('`, `')}\``, this.helpProvider);
-    }
-
-    for (let definition of pendingParamDefinitions) {
-      let defaultValue = definition.default;
-
-      let value = typeof defaultValue === 'string' ?
-        await castArgument(defaultValue, definition.name, definition.type, definition.validators, true) :
-        defaultValue;
-
-      commandArgs.push(value);
-    }
-
-    if (
-      paramsDefinition &&
-      paramsDefinition.required &&
-      !commandExtraArgs.length
-    ) {
-      throw new UsageError(
-        `Expecting at least one element for variadic parameters \`${paramsDefinition.name}\``,
-        this.helpProvider,
-      );
-    }
-
-    return {
-      args: commandArgs,
-      extraArgs: paramsDefinition && commandExtraArgs,
-      options: commandOptions,
-      context: this.contextConstructor ? context : undefined,
-    };
-
-    async function consumeFlags(flags: string): Promise<void> {
-      for (let i = 0; i < flags.length; i++) {
-        let flag = flags[i];
-
-        if (!optionFlagMapping.has(flag)) {
-          throw new UsageError(`Unknown option flag "${flag}"`, that.helpProvider);
-        }
-
-        let name = optionFlagMapping.get(flag)!;
-        let definition = optionDefinitionMap.get(name)!;
-
-        if (definition.required) {
-          requiredOptionSet!.delete(name);
-        }
-
-        if (definition.toggle) {
-          commandOptions![definition.key] = true;
-        } else {
-          if (i !== flags.length - 1) {
-            throw new UsageError(
-              'Only the last flag in a sequence can refer to an option instead of a toggle',
-              that.helpProvider,
-            );
-          }
-
-          await consumeOption(definition);
-        }
-      }
-    }
-
-    async function consumeToggleOrOption(name: string): Promise<void> {
-      if (!optionDefinitionMap.has(name)) {
-        throw new UsageError(`Unknown option \`${name}\``, that.helpProvider);
-      }
-
-      let definition = optionDefinitionMap.get(name)!;
-
-      if (definition.required) {
-        requiredOptionSet!.delete(name);
-      }
-
-      if (definition.toggle) {
-        commandOptions![definition.key] = true;
-      } else {
-        await consumeOption(definition);
-      }
-    }
-
-    async function consumeOption(definition: OptionDefinition<any>): Promise<void> {
-      let {
-        name,
-        key,
-        type,
-        validators,
-      } = definition;
-
-      let arg = args.shift();
-
-      if (arg === undefined) {
-        throw new UsageError(`Expecting value for option \`${name}\``, that.helpProvider);
-      }
-
-      if (arg[0] === '-' && isNaN(Number(arg))) {
-        throw new UsageError(
-          `Expecting a value instead of an option or toggle "${arg}" for option \`${name}\``,
-          that.helpProvider,
-        );
-      }
-
-      commandOptions![key] = await castArgument(arg, name, type, validators, false);
-    }
-
-    async function castArgument(
-      arg: string,
-      name: string,
-      type: CastableType<any>,
-      validators: GeneralValidator<any>[],
-      usingDefault: boolean,
-    ): Promise<any> {
-      let castingContext = buildCastingContext(context, {
-        name,
-        default: usingDefault,
-        validators,
-      });
-
-      return await cast(arg, type, castingContext);
-    }
-  }
-}
-
-export interface HelpProvider {
-  getHelp(): Promise<HelpInfo> | HelpInfo;
-}
-
-export class UsageError extends ExpectedError implements Printable {
-  constructor(
-    message: string,
-    public helpProvider: HelpProvider,
-  ) {
-    super(message);
-  }
-
-  async print(stdout: NodeJS.WritableStream, stderr: NodeJS.WritableStream): Promise<void> {
-    super.print(stdout, stderr);
-
-    let help = await this.helpProvider.getHelp();
-    help.print(stdout, stderr);
   }
 }

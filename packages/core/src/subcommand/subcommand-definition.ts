@@ -1,4 +1,3 @@
-
 export interface SubcommandDefinition {
   name: string;
   alias?: string;

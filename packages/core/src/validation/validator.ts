@@ -1,4 +1,5 @@
 import { ValidationContext } from './validation-context';
+
 /**
  * Validator interface for parameters or options.
  */

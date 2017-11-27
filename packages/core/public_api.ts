@@ -15,10 +15,9 @@ export * from './src/params/index';
 export * from './src/shim/index';
 export * from './src/subcommand/index';
 
-export * from './src/error';
-
+export * from './src/error/index';
 
 export {
   Castable,
-  Castable as Object
+  Castable as Object,
 };

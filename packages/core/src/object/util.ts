@@ -15,4 +15,3 @@ export function isStringCastable<T>(object: object): object is StringCastable<T>
 export function buildCastingContext<T>(context: Context, extension: CastingContextExtension<T>): CastingContext<T> {
   return Object.assign(Object.create(context), extension);
 }
-

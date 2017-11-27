@@ -37,7 +37,7 @@ export class Directory {
   }
 
   async exists(): Promise<boolean> {
-    let stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
+    const stats = await villa.call(fs.stat, this.fullName).catch(villa.bear);
     return !!stats && stats.isDirectory();
   }
 

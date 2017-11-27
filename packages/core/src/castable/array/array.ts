@@ -27,10 +27,10 @@ export function array<T>(
         options.validators = options.validator ? [options.validator] : [];
       }
 
-      let castingContext = buildCastingContext(context, {
+      const castingContext = buildCastingContext(context, {
+        default: context.default,
         name: `element of ${context.name}`,
         validators: options.validators,
-        default: context.default,
       });
 
       return await villa.map(parts, part => cast(part, type, castingContext));

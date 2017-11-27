@@ -22,7 +22,7 @@ export class Shim {
    */
   async execute(argv: string[], cwd?: string): Promise<void> {
     try {
-      let result = await this.cli.execute(argv.slice(2), cwd);
+      const result = await this.cli.execute(argv.slice(2), cwd);
 
       if (isPrintable(result)) {
         await result.print(process.stdout, process.stderr);

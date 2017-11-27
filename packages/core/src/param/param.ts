@@ -2,7 +2,7 @@ import * as Reflection from '../util/reflection';
 import * as assert from 'assert';
 
 import { CastableType } from '../object/castable-type';
-import { Executable, } from '../command/executable';
+import { Executable } from '../command/executable';
 import { ParamOptions } from './param-options';
 import hyphenate from 'hyphenate';
 
@@ -24,21 +24,14 @@ export function Param<T>({
   return (target: Executable, name: 'execute', index: number) => {
     assert.equal(name, 'execute');
 
-    let constructor = target.constructor as typeof Executable;
-
-    let definitions = constructor.paramDefinitions;
-
-    if (constructor.paramDefinitions) {
-      definitions = constructor.paramDefinitions;
-    } else {
-      definitions = constructor.paramDefinitions = [];
-    }
+    const constructor = target.constructor as typeof Executable;
+    const definitions = constructor.paramDefinitions || [];
+    constructor.paramDefinitions = definitions;
 
     type = type ||
       Reflect.getMetadata('design:paramtypes', target, 'execute')[index] as CastableType<T>;
 
     paramName = paramName ||
-      // tslint:disable-next-line:no-unbound-method
       hyphenate(Reflection.getFunctionParameterName(target.execute, index), { lowerCase: true });
 
     if (!validators) {
@@ -46,13 +39,13 @@ export function Param<T>({
     }
 
     definitions[index] = {
-      name: paramName,
-      index,
-      type,
-      required: !!required,
-      validators,
       default: defaultValue,
       description,
+      index,
+      name: paramName,
+      required: !!required,
+      type,
+      validators,
     };
   };
 }

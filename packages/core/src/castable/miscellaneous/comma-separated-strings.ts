@@ -4,7 +4,7 @@ export class CommaSeparatedStrings extends Array<string> {
   }
 
   static cast(line: string): CommaSeparatedStrings {
-    let values = line
+    const values = line
       .split(',')
       .map(str => str.trim())
       .filter(str => !!str);

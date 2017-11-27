@@ -1,7 +1,7 @@
 /.nyc_output/
 /.vscode/launch.json
 
-/node_modules/
+node_modules/
 /dist/
 /coverage/
 

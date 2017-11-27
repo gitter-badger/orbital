@@ -11,7 +11,7 @@ export async function cast<T>(
 ): Promise<T> {
   let value: any;
 
-  let {
+  const {
     name,
     validators,
     default: usingDefault,
@@ -44,11 +44,11 @@ export async function cast<T>(
 see \`StringCastable\` interface for more information`);
       }
 
-      let castingContext = buildCastingContext(context, {
-        name,
-        validators,
+      const castingContext = buildCastingContext(context, {
         default: usingDefault,
+        name,
         upper: context,
+        validators,
       });
 
       value = await type.cast(source, castingContext);
@@ -56,7 +56,7 @@ see \`StringCastable\` interface for more information`);
       break;
   }
 
-  for (let validator of validators) {
+  for (const validator of validators) {
     if (validator instanceof RegExp) {
       if (!validator.test(source)) {
         throw new ExpectedError(`Invalid value for "${name}"`);
@@ -71,4 +71,3 @@ see \`StringCastable\` interface for more information`);
   return value;
 
 }
-
