@@ -1,58 +1,18 @@
+import * as Reflection from '../util/reflection';
 import * as assert from 'assert';
 
-import {
-  Command,
-  GeneralValidator,
-} from './command';
-
-import { CastableType } from '..';
-import { Reflection } from '../../util';
+import { CastableType } from '../object/castable-type';
+import { Executable, } from '../command/executable';
+import { ParamOptions } from './param-options';
 import hyphenate from 'hyphenate';
 
 /**
- * Options for command parameter.
- */
-export interface ParamOptions<T> {
-  /**
-   * Parameter name shown on usage, defaults to the name of correspondent
-   * function parameter.
-   */
-  name?: string;
-  /** Parameter type, defaults to type of emitted "design:type" metadata. */
-  type?: CastableType<any>;
-  /** Indicates whether this parameter is required, defaults to `false`. */
-  required?: boolean;
-  /**
-   * The parameter validator, could be either a regular expression or an
-   * object that matches `Validator` interface.
-   */
-  validator?: GeneralValidator<T>;
-  /** The parameter validators. */
-  validators?: GeneralValidator<T>[];
-  /** Default value for this parameter. */
-  default?: T | string;
-  /** Description shown on usage. */
-  description?: string;
-}
-
-/** @internal */
-export interface ParamDefinition<T> {
-  name: string;
-  index: number;
-  type: CastableType<any>;
-  description: string | undefined;
-  required: boolean;
-  validators: GeneralValidator<T>[];
-  default: T | string | undefined;
-}
-
-/**
- * The `param()` decorator that decorates parameters of method `execute` on a
+ * The `@Param()` decorator that decorates parameters of method `execute` on a
  * concrete `Command` class.
  * This decorator could only be applied to continuous parameters of which the
  * index starts from 0.
  */
-export function param<T>({
+export function Param<T>({
   name: paramName,
   type,
   required,
@@ -61,10 +21,10 @@ export function param<T>({
   default: defaultValue,
   description,
 }: ParamOptions<T> = {}) {
-  return (target: Command, name: 'execute', index: number) => {
+  return (target: Executable, name: 'execute', index: number) => {
     assert.equal(name, 'execute');
 
-    let constructor = target.constructor as typeof Command;
+    let constructor = target.constructor as typeof Executable;
 
     let definitions = constructor.paramDefinitions;
 

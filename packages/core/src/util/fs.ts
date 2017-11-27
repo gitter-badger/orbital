@@ -1,9 +1,8 @@
-import * as FS from 'fs';
+import * as fs from 'fs';
+import * as villa from 'villa';
 
-import * as v from 'villa';
-
-export async function safeStat(path: string): Promise<FS.Stats | undefined> {
-  return await v.call(FS.stat, path).catch(v.bear);
+export async function safeStat(path: string): Promise<fs.Stats | undefined> {
+  return await villa.call(fs.stat, path).catch(villa.bear);
 }
 
 export async function existsFile(path: string): Promise<boolean> {

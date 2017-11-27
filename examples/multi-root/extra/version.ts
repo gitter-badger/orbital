@@ -1,15 +1,15 @@
 import {
   Command,
-  command,
-  metadata,
-} from '../../..';
+  Executable,
+  Metadata,
+} from '../../../packages/core';
 
-@command({
+@Command({
   brief: 'Print version',
   description: 'Print version of this tool',
 })
-export default class extends Command {
-  @metadata
+export default class extends Executable {
+  @Metadata
   execute() {
     return '0.0.0';
   }

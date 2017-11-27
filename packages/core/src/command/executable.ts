@@ -1,4 +1,9 @@
-import { HelpBuildingContext } from './help/help-building-context';
+import { Context } from '../object/context';
+import { HelpBuildingContext } from '../help/help-building-context';
+import { HelpInfo } from '../help/help';
+import { OptionDefinition } from '../option/option-definition';
+import { ParamDefinition } from '../param/param-definition';
+import { ParamsDefinition } from '../params/params-definition';
 /**
  * The abstract `Executable` class to be extended.
  */

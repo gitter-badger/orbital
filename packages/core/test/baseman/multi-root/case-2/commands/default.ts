@@ -1,0 +1,21 @@
+import {
+  Command,
+  Executable,
+  Param
+} from '../../../../..';
+
+@Command({
+  description: 'Foo bar',
+})
+export default class extends Executable {
+  execute(
+    @Param({
+      description: 'Some name',
+    })
+    name: string,
+  ) {
+    return JSON.stringify({
+      name,
+    }, undefined, 2);
+  }
+}

@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "tslint -c tslint.json -p tsconfig.json --type-check",
     "build": "rimraf dist && tsc",
-    "bare-test": "mocha && baseman run bld/test/baseman",
+    "bare-test": "mocha && baseman run dist/packages/**/test/baseman",
     "pretest": "yarn build",
     "test": "nyc yarn bare-test",
     "report-coverage": "cat coverage/lcov.info | coveralls"

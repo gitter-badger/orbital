@@ -1,28 +1,29 @@
 import * as Path from 'path';
-import * as v from 'villa';
+import * as villa from 'villa';
 
-import {
-  CastableType,
-  Printable,
-  buildCastingContext,
-  cast,
-} from './object';
-import {
-  Command,
-  CommandClass,
-  Context,
-  GeneralValidator,
-  HelpInfo,
-  OptionDefinition,
-  ParamDefinition,
-  ParamsDefinition,
-} from './command';
-import {
-  existsDir,
-  existsFile,
-} from '../internal-util';
+import { existsDir, existsFile, } from '../util/fs';
 
-import { ExpectedError } from './error';
+import { CastableType } from '../object/castable-type';
+import { CommandEntry } from '../command/command-entry';
+import { CommandModule } from '../command/command-module';
+import { CommandRoot } from '../command/command-root';
+import { Context } from '../object/context';
+import { Executable } from '../command/executable';
+import { ExpectedError } from '../error';
+import { GeneralCommandRoot } from '../command/general-command-root';
+import { GeneralValidator } from '../validation/general-validator';
+import { HelpInfo } from '../help/help';
+import { OptionDefinition } from '../option/option-definition';
+import { ParamDefinition } from '../param/param-definition';
+import { ParamsDefinition } from '../params/params-definition';
+import { PreProcessResult } from './preprocess-result';
+import { Printable } from '../object/printable';
+import { SubcommandDefinition } from '../subcommand/subcommand-definition';
+import { SubcommandSearchBaseResult } from '../subcommand/subcommand-base-search-result';
+import { SubcommandSearchContext } from '../subcommand/subcommand-search-context';
+import { SubcommandSearchInProgressContext } from '../subcommand/subcommand-search-in-progress-context';
+import { buildCastingContext } from '../object/util';
+import { cast } from '../object/cast';
 
 /**
  * Clime command line interface.
@@ -85,7 +86,7 @@ export class CLI {
     if (module) {
       let TargetCommand = module.default;
 
-      if (TargetCommand && TargetCommand.prototype instanceof Command) {
+      if (TargetCommand && TargetCommand.prototype instanceof Executable) {
         // This is a command module with an actual command.
 
         if (!TargetCommand.decorated) {
@@ -103,7 +104,7 @@ make sure to decorate it with \`@command()\``);
         TargetCommand.sequence = sequence;
 
         let argsParser = new ArgsParser(TargetCommand);
-        let parsedArgs = await argsParser.parse(sequence, args, cwd, contextExtension);
+        let parsedArgs = await argsParser.parse(sequence, args, cwd, contextExtension as object);
 
         if (!parsedArgs) {
           return await HelpInfo.build(TargetCommand);
@@ -215,7 +216,7 @@ instead of "${definition.name}"`);
     let targetPath: string | undefined;
     let targetModule: CommandModule | undefined;
 
-    let contexts: SubcommandSearchContext[] = await v.map(this.roots, async root => {
+    let contexts: SubcommandSearchContext[] = await villa.map(this.roots, async root => {
       let path: string | undefined = Path.join(root.path, 'default.js');
       path = await existsFile(path) ? path : undefined;
 
@@ -248,7 +249,7 @@ instead of "${definition.name}"`);
 
       let aliasMap = new Map<string, string>();
 
-      let nextContexts: SubcommandSearchInProgressContext[] = await v.map(contexts, async context => {
+      let nextContexts: SubcommandSearchInProgressContext[] = await villa.map(contexts, async context => {
         let searchBaseContext = await this.preProcessSearchBase(context.searchBase, possibleCommandName, aliasMap);
         return {
           label: context.label,
@@ -294,7 +295,7 @@ instead of "${definition.name}"`);
   }
 
   private executeCommand(
-    command: Command,
+    command: Executable,
     commandArgs: string[],
     commandExtraArgs: string[] | undefined,
     commandOptions: Orbital.Dictionary<any> | undefined,
@@ -332,28 +333,28 @@ instead of "${definition.name}"`);
   }
 
   private static async findEntryBySearchBase(searchBase: string): Promise<CommandEntry | undefined> {
-      let possiblePaths = [
-        `${searchBase}.js`,
-        Path.join(searchBase, 'default.js'),
-      ];
+    let possiblePaths = [
+      `${searchBase}.js`,
+      Path.join(searchBase, 'default.js'),
+    ];
 
-      for (let possiblePath of possiblePaths) {
-        if (await existsFile(possiblePath)) {
-          return {
-            path: possiblePath,
-            module: require(possiblePath) as CommandModule,
-          };
-        }
-      }
-
-      if (await existsDir(searchBase)) {
+    for (let possiblePath of possiblePaths) {
+      if (await existsFile(possiblePath)) {
         return {
-          path: searchBase,
-          module: undefined,
+          path: possiblePath,
+          module: require(possiblePath) as CommandModule,
         };
       }
+    }
 
-      return undefined;
+    if (await existsDir(searchBase)) {
+      return {
+        path: searchBase,
+        module: undefined,
+      };
+    }
+
+    return undefined;
   }
 }
 
@@ -380,7 +381,7 @@ class ArgsParser {
 
   private contextConstructor: typeof Context;
 
-  constructor(command: typeof Command) {
+  constructor(command: typeof Executable) {
     this.helpProvider = command;
 
     this.paramDefinitions = command.paramDefinitions;

@@ -5,10 +5,8 @@
     "declaration": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "stripInternal": true,
     "sourceMap": true,
     "lib": [
       "es6"
@@ -20,10 +18,13 @@
       {
         "name": "tslint-language-service"
       }
+    ],
+    "typeRoots": [
+      "node_modules/@types"
     ]
   },
   "exclude": [
-    "bld",
+    "dist",
     "node_modules"
   ]
 }

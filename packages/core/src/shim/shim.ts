@@ -2,13 +2,10 @@
 
 import * as Util from 'util';
 
-import * as chalk from 'chalk';
-
-import {
-  CLI,
-  ExpectedError,
-  isPrintable,
-} from '../core';
+import { CLI } from '../cli/cli';
+import { ExpectedError } from '../error';
+import chalk from 'chalk';
+import { isPrintable } from '../object/util';
 
 /**
  * A Clime command line interface shim for pure Node.js.

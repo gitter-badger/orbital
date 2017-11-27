@@ -1,5 +1,6 @@
 import * as Path from 'path';
-import { CLI, Shim } from '../..';
+
+import { CLI, Shim } from '../../packages/core';
 
 let cli = new CLI('greet', Path.join(__dirname, 'commands'));
 

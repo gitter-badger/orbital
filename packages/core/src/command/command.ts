@@ -1,17 +1,13 @@
-import {
-  HelpBuildingContext,
-  HelpInfo,
-  OptionDefinition,
-  Options,
-  ParamDefinition,
-  ParamsDefinition,
-} from '.';
+import { CommandOptions } from './command-options';
+import { Context } from '../object/context';
+import { Executable } from './executable';
+import { Options } from '../option/options';
 
 /**
- * The `command()` decorator that decorates concrete class of `Command`.
+ * The `Command()` decorator that decorates concrete class of `Command`.
  */
-export function command(options: CommandOptions = {}) {
-  return (target: typeof Command) => {
+export function Command(options: CommandOptions = {}) {
+  return (target: typeof Executable) => {
     target.brief = options.brief;
     target.description = options.description;
 
@@ -56,7 +52,7 @@ export function command(options: CommandOptions = {}) {
     let types = Reflect.getMetadata('design:paramtypes', target.prototype, 'execute') as Orbital.Constructor<any>[];
 
     if (!types) {
-      throw new Error('No parameter type information found, please add `@metadata` decorator to method `execute` \
+      throw new Error('No parameter type information found, please add `@Metadata` decorator to method `execute` \
 if no other decorator applied');
     }
 
@@ -94,4 +90,4 @@ if no other decorator applied');
  * TypeScript emits type metadata for `execute` method that has no other
  * decorators.
  */
-export const metadata: MethodDecorator = () => { };
+export const Metadata: MethodDecorator = () => { };

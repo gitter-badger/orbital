@@ -1,7 +1,5 @@
-import {
-  ExpectedError,
-  ValidatorFunction,
-} from '../core';
+import { ExpectedError } from '../error';
+import { ValidatorFunction } from '../validation/validation-function';
 
 export function range(from: number, to: number): ValidatorFunction<number> {
   return (value, { name, source }) => {

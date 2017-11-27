@@ -1,15 +1,15 @@
 import {
   Command,
-  command,
-  param,
-} from '../../../..';
+  Executable,
+  Param,
+} from '../../../../packages/core';
 
-@command({
+@Command({
   description: 'Find package information',
 })
-export default class extends Command {
+export default class extends Executable {
   execute(
-    @param({
+    @Param({
       required: true,
       description: 'Pattern of package to find',
     })

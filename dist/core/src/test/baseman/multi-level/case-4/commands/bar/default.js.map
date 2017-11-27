@@ -1,1 +1,0 @@
-{"version":3,"file":"default.js","sourceRoot":"","sources":["../../../../../../../../../packages/core/src/test/baseman/multi-level/case-4/commands/bar/default.ts"],"names":[],"mappings":";;AAEa,QAAA,WAAW,GAA2B;IACjD;QACE,IAAI,EAAE,KAAK;QACX,OAAO,EAAE,CAAC,GAAG,EAAE,IAAI,CAAC;QACpB,KAAK,EAAE,sBAAsB;KAC9B;IACD;QACE,IAAI,EAAE,SAAS;QACf,OAAO,EAAE,CAAC,KAAK,CAAC;KACjB;CACF,CAAC"}

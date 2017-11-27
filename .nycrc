@@ -4,12 +4,12 @@
     "text-summary"
   ],
   "include": [
-    "bld/**/*.js"
+    "dist/packages/**/*.js"
   ],
   "exclude": [
-    "bld/test/**/*.js",
-    "bld/examples/**/*.js",
-    "bld/internal-util/**/*.js",
-    "bld/lang.js"
+    "dist/packages/**/test/**/*.js",
+    "dist/examples/**/*.js",
+    "dist/packages/**/util/**/*.js",
+    "dist/packages/**/lang.js"
   ]
 }

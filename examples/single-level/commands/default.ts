@@ -2,12 +2,12 @@ import 'source-map-support/register';
 
 import {
   Command,
+  Executable,
   ExpectedError,
+  Option,
   Options,
-  command,
-  option,
-  param,
-} from '../../..';
+  Param,
+} from '../../../packages/core';
 
 // tslint:disable-next-line:no-unbound-method
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -20,7 +20,7 @@ const messageMap: {
 };
 
 export class GreetingOptions extends Options {
-  @option({
+  @Option({
     flag: 'l',
     default: 'en',
     description: 'Language of greeting message',
@@ -28,12 +28,12 @@ export class GreetingOptions extends Options {
   lang: string;
 }
 
-@command({
+@Command({
   description: 'This is a command that prints greeting message',
 })
-export default class extends Command {
+export default class extends Executable {
   execute(
-    @param({
+    @Param({
       name: 'yourName',
       required: true,
       description: 'Your loud name',

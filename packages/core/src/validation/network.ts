@@ -1,9 +1,7 @@
-import {
-  ExpectedError,
-  ValidatorFunction,
-} from '../core';
-
 import * as Net from 'net';
+
+import { ExpectedError } from '../error';
+import { ValidatorFunction } from './validation-function';
 
 export const ip: ValidatorFunction<string> = (value, { name }) => {
   if (!Net.isIP(value)) {

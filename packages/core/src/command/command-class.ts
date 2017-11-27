@@ -1,2 +1,3 @@
 import { Executable } from './executable';
-export type CommandClass = Orbital.Constructor<Executable> & Executable;
+
+export type CommandClass = Orbital.Constructor<Executable> & typeof Executable;

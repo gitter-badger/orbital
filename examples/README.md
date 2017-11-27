@@ -12,6 +12,6 @@ npm run build
 ### Try an example
 
 ```
-cd ./bld/examples/<example>
+cd ./dist/examples/<example>
 node ./cli.js --help
 ```

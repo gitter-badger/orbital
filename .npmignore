@@ -2,8 +2,8 @@
 /types/
 /test/
 
-/bld/examples/
-/bld/test/
+/dist/examples/
+/dist/test/
 /coverage/
 
 /tsconfig.json

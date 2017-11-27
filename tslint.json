@@ -2,6 +2,7 @@
   "extends": "vts",
   "rules": {
     "no-require-imports": false,
-    "no-return-await": false
+    "no-return-await": false,
+    "sort-imopir"
   }
 }
