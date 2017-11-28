@@ -1,69 +1,53 @@
 import { buildCastingContext, cast, CastableType, Context } from "../object";
 import { GeneralValidator } from "../validation";
-import { ParamsDefinition } from '../params';
-import { OptionDefinition } from '../option';
-import { ParamDefinition } from '../param';
+import { ParamsDefinition } from "../params";
+import { OptionDefinition } from "../option";
+import { ParamDefinition } from "../param";
 import { ParsedArgs } from "./parsed-args";
-import { Executable } from '../command';
+import { Executable } from "../command";
 import { HelpProvider } from "../help";
 import { UsageError } from "../error";
 
 export class ArgsParser {
+  private contextConstructor: typeof Context;
   private helpProvider: HelpProvider;
 
   private paramDefinitions: ParamDefinition<any>[];
+  private paramsDefinition: ParamsDefinition<any>;
   private requiredParamsNumber: number;
 
-  private paramsDefinition: ParamsDefinition<any>;
-
-  private optionDefinitionMap: Map<string, OptionDefinition<any>>;
-  private optionFlagMapping: Map<string, string>;
-
+  private optionDefinitionMap: Map<string, OptionDefinition<any>> = new Map<string, OptionDefinition<any>>();
+  private optionFlagMapping: Map<string, string> = new Map<string, string>();
   private optionsConstructor: Orbital.Constructor<Orbital.Dictionary<any>>;
   private optionDefinitions: OptionDefinition<any>[];
 
-  private contextConstructor: typeof Context;
-
   constructor(command: typeof Executable) {
-    this.helpProvider = command;
-
-    this.paramDefinitions = command.paramDefinitions;
     this.requiredParamsNumber = command.requiredParamsNumber;
-
-    this.paramsDefinition = command.paramsDefinition;
-
+    this.contextConstructor = command.contextConstructor;
     this.optionsConstructor = command.optionsConstructor;
     this.optionDefinitions = command.optionDefinitions;
+    this.paramDefinitions = command.paramDefinitions;
+    this.paramsDefinition = command.paramsDefinition;
+    this.helpProvider = command;
 
-    this.contextConstructor = command.contextConstructor;
+    this.initOptionsMap(command.optionDefinitions);
+  }
 
-    if (this.optionDefinitions) {
-      this.optionFlagMapping = new Map<string, string>();
-      this.optionDefinitionMap = new Map<string, OptionDefinition<any>>();
-
-      for (const definition of this.optionDefinitions) {
-        const {
-          name,
-          flag,
-        } = definition;
-
-        this.optionDefinitionMap.set(name, definition);
-
-        if (flag) {
-          this.optionFlagMapping.set(flag, name);
-        }
+  private initOptionsMap(optionDefinitions) {
+    for (const def of optionDefinitions) {
+      this.optionDefinitionMap.set(def.name, def);
+      if (def.flag) {
+        this.optionFlagMapping.set(def.flag, def.name);
       }
     }
   }
 
-  async parse(
+  public async parse(
     sequence: string[],
     args: string[],
     cwd: string,
     contextExtension: object | undefined,
   ): Promise<ParsedArgs | undefined> {
-    const that = this;
-
     const ContextConstructor: Orbital.Constructor<Context> = this.contextConstructor || Context;
     const context = new ContextConstructor(
       {
@@ -73,180 +57,159 @@ export class ArgsParser {
       contextExtension,
     );
 
-    args = args.concat();
-
     const OptionConstructor = this.optionsConstructor;
-    const optionDefinitions = this.optionDefinitions;
-    const optionDefinitionMap = this.optionDefinitionMap || new Map<string, OptionDefinition<any>>();
-    const optionFlagMapping = this.optionFlagMapping || new Map<string, string>();
-    let requiredOptionSet: Set<string> | undefined;
+    const requiredOptionSet = new Set<string>();
 
     const paramDefinitions = this.paramDefinitions || [];
     const pendingParamDefinitions = paramDefinitions.concat();
 
-    const paramsDefinition = this.paramsDefinition;
     const argsNumber = args.length;
 
-    const commandArgs = [] as any[];
-    const commandExtraArgs = paramsDefinition && [] as any[];
-    let commandOptions: Orbital.Dictionary<any> | undefined;
+    const commandArgs = [];
+    const commandExtraArgs = this.paramsDefinition && [];
+    const commandOptions = new OptionConstructor();
 
     if (OptionConstructor) {
-      commandOptions = new OptionConstructor();
-      requiredOptionSet = new Set<string>();
-
-      for (const definition of optionDefinitions) {
-        const {
-          name,
-          key,
-          type,
-          required,
-          validators,
-          toggle,
-          default: defaultValue,
-        } = definition;
-
-        if (required) {
-          requiredOptionSet.add(name);
-        }
-
-        if (toggle) {
-          commandOptions[key] = false;
-        } else {
-          commandOptions[key] = typeof defaultValue === 'string' ?
-            await castArgument(defaultValue, name, type, validators, true) :
-            defaultValue;
-        }
-      }
+      await this.initOptions(requiredOptionSet, commandOptions, context);
     }
 
-    while (args.length) {
-      const arg = args.shift() as string;
+    const arg = args.shift();
+    const requestedHelpNotAvailable = arg === "tftf-?" // WTF: is this needed for anything ?
+      || (arg === "-h" && !this.optionFlagMapping.has("h"))
+      || (arg === "--help" && !this.optionDefinitionMap.has("help"));
 
-      if (
-        arg === '-?' ||
-        (arg === '-h' && !optionFlagMapping.has('h')) ||
-        (arg === '--help' && !optionDefinitionMap.has('help'))
-      ) {
-        return undefined;
-      }
-
-      if (arg[0] === '-' && isNaN(Number(arg))) {
-        if (arg[1] === '-') {
-          await consumeToggleOrOption(arg.substr(2));
-        } else {
-          await consumeFlags(arg.substr(1));
-        }
-      } else if (pendingParamDefinitions.length) {
-        const definition = pendingParamDefinitions.shift() as ParamDefinition<any>;
-        const casted = await castArgument(
-          arg,
-          definition.name,
-          definition.type,
-          definition.validators,
-          false,
-        );
-        commandArgs.push(casted);
-      } else if (paramsDefinition) {
-        const casted = await castArgument(
-          arg,
-          paramsDefinition.name,
-          paramsDefinition.type,
-          paramsDefinition.validators,
-          false,
-        );
-        commandExtraArgs.push(casted);
-      } else {
-        throw new UsageError(
-          `Expecting ${paramDefinitions.length} parameter(s) at most but got ${argsNumber} instead`,
-          this.helpProvider,
-        );
-      }
+    if (requestedHelpNotAvailable) {
+      return undefined;
     }
 
-    {
-      const expecting = this.requiredParamsNumber;
-      const got = commandArgs.length;
+    this.parseArgs(
+      args,
+      requiredOptionSet,
+      commandOptions,
+      pendingParamDefinitions,
+      context,
+      commandArgs,
+      commandExtraArgs,
+      paramDefinitions,
+      argsNumber,
+    );
 
-      if (got < expecting) {
-        const missingArgNames = pendingParamDefinitions
-          .slice(0, expecting - got)
-          .map(definition => `\`${definition.name}\``);
+    const enoughParameters = this.requiredParamsNumber <= commandArgs.length;
+    if (!enoughParameters) {
+      const missingArgNames = pendingParamDefinitions
+        .slice(0, this.requiredParamsNumber - commandArgs.length)
+        .map(definition => `\`${definition.name}\``);
 
-        throw new UsageError(`Expecting parameter(s) ${missingArgNames.join(', ')}`, this.helpProvider);
-      }
+      this.throw(`Expecting parameter(s) ${missingArgNames.join(", ")}`);
     }
 
     const missingOptionNames = requiredOptionSet && Array.from(requiredOptionSet);
-
     if (missingOptionNames && missingOptionNames.length) {
-      throw new UsageError(`Missing required option(s) \`${missingOptionNames.join('`, `')}\``, this.helpProvider);
+      this.throw(`Missing required option(s) \`${missingOptionNames.join("`, `")}\``);
     }
 
-    for (const definition of pendingParamDefinitions) {
-      const defaultValue = definition.default;
+    commandArgs.concat(await this.getArgs(pendingParamDefinitions, context));
 
-      const value = typeof defaultValue === 'string' ?
-        await castArgument(defaultValue, definition.name, definition.type, definition.validators, true) :
-        defaultValue;
-
-      commandArgs.push(value);
-    }
-
-    if (
-      paramsDefinition &&
-      paramsDefinition.required &&
-      !commandExtraArgs.length
-    ) {
-      throw new UsageError(
-        `Expecting at least one element for variadic parameters \`${paramsDefinition.name}\``,
-        this.helpProvider,
-      );
+    const requiredEmptyVariadics = this.paramsDefinition && this.paramsDefinition.required && !commandExtraArgs.length;
+    if (requiredEmptyVariadics) {
+      this.throw(`Expecting at least one element for variadic parameters \`${this.paramsDefinition.name}\``);
     }
 
     return {
       args: commandArgs,
       context: this.contextConstructor ? context : undefined,
-      extraArgs: paramsDefinition && commandExtraArgs,
+      extraArgs: this.paramsDefinition && commandExtraArgs,
       options: commandOptions,
     };
+  }
 
-    async function consumeFlags(flags: string): Promise<void> {
-      for (let i = 0; i < flags.length; i++) {
-        const flag = flags[i];
+  private async parseArgs(
+    args: any[],
+    requiredOptionSet,
+    commandOptions,
+    pendingParamDefinitions,
+    context,
+    commandArgs,
+    commandExtraArgs,
+    paramDefinitions,
+    argsNumber,
+  ) {
+    while (args.length) {
+      const arg = args.shift() as string;
 
-        if (!optionFlagMapping.has(flag)) {
-          throw new UsageError(`Unknown option flag "${flag}"`, that.helpProvider);
-        }
-
-        const name = optionFlagMapping.get(flag)!;
-        const definition = optionDefinitionMap.get(name)!;
-
-        if (definition.required) {
-          requiredOptionSet!.delete(name);
-        }
-
-        if (definition.toggle) {
-          commandOptions![definition.key] = true;
+      if (arg[0] === "-" && isNaN(Number(arg))) {
+        if (arg[1] === "-") {
+          await this.consumeToggleOrOption(arg.substr(2), requiredOptionSet, commandOptions, args);
         } else {
-          if (i !== flags.length - 1) {
-            throw new UsageError(
-              'Only the last flag in a sequence can refer to an option instead of a toggle',
-              that.helpProvider,
-            );
-          }
-
-          await consumeOption(definition);
+          await this.consumeFlags(arg.substr(1), args, commandOptions, requiredOptionSet);
         }
+      } else if (pendingParamDefinitions.length) {
+        const definition = pendingParamDefinitions.shift() as ParamDefinition<any>;
+        const casted = await this.castArgument(
+          arg,
+          definition.name,
+          definition.type,
+          definition.validators,
+          false,
+          context,
+        );
+        commandArgs.push(casted);
+      } else if (this.paramsDefinition) {
+        const casted = await this.castArgument(
+          arg,
+          this.paramsDefinition.name,
+          this.paramsDefinition.type,
+          this.paramsDefinition.validators,
+          false,
+          context,
+        );
+        commandExtraArgs.push(casted);
+      } else {
+        this.throw(`Expecting ${paramDefinitions.length} parameter(s) at most but got ${argsNumber} instead`);
       }
     }
+  }
 
-    async function consumeToggleOrOption(name: string): Promise<void> {
-      if (!optionDefinitionMap.has(name)) {
-        throw new UsageError(`Unknown option \`${name}\``, that.helpProvider);
+  // TODO: find a better name
+  private async getArgs(pendingParamDefinitions: ParamDefinition<any>[], context: Context): Promise<any[]> {
+    const args = [];
+    for (const definition of pendingParamDefinitions) {
+      const defaultValue = definition.default;
+      const value = typeof defaultValue === "string"
+        ? await this.castArgument(defaultValue, definition.name, definition.type, definition.validators, true, context)
+        : defaultValue;
+      args.push(value);
+    }
+    return args;
+  }
+
+  // TODO: remove side effect and then rename
+  private async initOptions(requiredOptionSet: Set<string>, commandOptions: Orbital.Dictionary<any>, context: Context) {
+    for (const def of this.optionDefinitions) {
+      if (def.required) {
+        requiredOptionSet.add(def.name);
+      }
+      if (def.toggle) {
+        commandOptions[def.key] = false;
+      } else {
+        commandOptions[def.key] = typeof def.default === "string"
+          ? await this.castArgument(def.default, def.name, def.type, def.validators, true, context)
+          : def.default;
+      }
+    }
+  }
+
+  // TODO: What does this mean ?
+  private async consumeFlags(flags: string, args, commandOptions, requiredOptionSet): Promise<void> {
+    for (let i = 0; i < flags.length; i++) {
+      const flag = flags[i];
+
+      if (!this.optionFlagMapping.has(flag)) {
+        this.throw(`Unknown option flag "${flag}"`);
       }
 
-      const definition = optionDefinitionMap.get(name)!;
+      const name = this.optionFlagMapping.get(flag)!;
+      const definition = this.optionDefinitionMap.get(name)!;
 
       if (definition.required) {
         requiredOptionSet!.delete(name);
@@ -255,48 +218,70 @@ export class ArgsParser {
       if (definition.toggle) {
         commandOptions![definition.key] = true;
       } else {
-        await consumeOption(definition);
+        if (i !== flags.length - 1) {
+          this.throw("Only the last flag in a sequence can refer to an option instead of a toggle");
+        }
+
+        await this.consumeOption(definition, args, commandOptions, context);
       }
     }
+  }
 
-    async function consumeOption(definition: OptionDefinition<any>): Promise<void> {
-      const {
-        name,
-        key,
-        type,
-        validators,
-      } = definition;
-
-      const arg = args.shift();
-
-      if (arg === undefined) {
-        throw new UsageError(`Expecting value for option \`${name}\``, that.helpProvider);
-      }
-
-      if (arg[0] === '-' && isNaN(Number(arg))) {
-        throw new UsageError(
-          `Expecting a value instead of an option or toggle "${arg}" for option \`${name}\``,
-          that.helpProvider,
-        );
-      }
-
-      commandOptions![key] = await castArgument(arg, name, type, validators, false);
+  private async consumeToggleOrOption(name: string, requiredOptionSet, commandOptions, args): Promise<void> {
+    if (!this.optionDefinitionMap.has(name)) {
+      this.throw(`Unknown option \`${name}\``);
     }
 
-    async function castArgument(
-      arg: string,
-      name: string,
-      type: CastableType<any>,
-      validators: GeneralValidator<any>[],
-      usingDefault: boolean,
-    ): Promise<any> {
-      const castingContext = buildCastingContext(context, {
-        default: usingDefault,
-        name,
-        validators,
-      });
+    const definition = this.optionDefinitionMap.get(name)!;
 
-      return await cast(arg, type, castingContext);
+    if (definition.required) {
+      requiredOptionSet!.delete(name);
     }
+
+    if (definition.toggle) {
+      commandOptions![definition.key] = true;
+    } else {
+      await this.consumeOption(definition, args, commandOptions, context);
+    }
+  }
+
+  // TODO: remove args shifting and make this for only one arg
+  // TODO: remove commandOptions mutation from here
+  private async consumeOption(definition: OptionDefinition<any>, args, commandOptions, context): Promise<void> {
+    const arg = args.shift();
+
+    if (arg === undefined) {
+      this.throw(`Expecting value for option \`${definition.name}\``);
+    }
+
+    if (arg[0] === "-" && isNaN(Number(arg))) {
+      this.throw(`Expecting a value instead of an option or toggle "${arg}" for option \`${definition.name}\``);
+    }
+
+    commandOptions![definition.key] =
+      await this.castArgument(arg, definition.name, definition.type, definition.validators, false, context);
+  }
+
+  // TODO: do this really belongs here ?
+  private async castArgument(
+    arg: string,
+    name: string,
+    type: CastableType<any>,
+    validators: GeneralValidator<any>[],
+    usingDefault: boolean,
+    context: Context,
+  ): Promise<any> {
+    const castingContext = buildCastingContext(context, {
+      default: usingDefault,
+      name,
+      validators,
+    });
+
+    return await cast(arg, type, castingContext);
+  }
+
+  // TODO: not sure if this doesn't remove readability
+  private throw(error: string) {
+    throw new UsageError(error, this.helpProvider);
   }
 }
