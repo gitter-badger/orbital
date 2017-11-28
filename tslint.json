@@ -1,7 +1,9 @@
 {
   "extends": "tslint:recommended",
   "rules": {
-    "quotemark": "single",
+    "quotemark": {
+      "options": "single"
+    },
     "ordered-imports": false,
     "interface-name": false,
     "member-access": false,
