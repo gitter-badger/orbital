@@ -8,3 +8,5 @@ node_modules/
 /test/baseman/output/
 
 npm-debug.log
+
+.idea/
