@@ -1,14 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as villa from 'villa';
-import * as chalk from 'chalk';
 
-import { buildTableOutput, indent, existsDir, safeStat } from '../util';
 import { CommandClass, CommandModule, Executable } from '../command';
 import { HelpBuildingContext, HelpInfoBuildOptions } from '../help';
-import { SubcommandHelpItem } from './subcommand-help-item';
-import { Printable } from '../object';
+import { buildTableOutput, existsDir, indent, safeStat } from '../util';
+
 import { CLI } from '../cli';
+import { Printable } from '../object';
+import { SubcommandHelpItem } from './subcommand-help-item';
+import chalk from 'chalk';
 
 export class HelpInfo implements Printable {
   private texts: string[] = [];

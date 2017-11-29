@@ -4,7 +4,7 @@ import { Directory, File, } from '../../src/castable';
 
 import { CastingContext } from '../..';
 
-const SAMPLE_FILES_DIR = Path.join(__dirname, '../../../test/sample-files');
+const SAMPLE_FILES_DIR = Path.join(__dirname, '../../../../../test/sample-files');
 const FILE_BASE_NAME = 'file';
 const TEXT_FILE_NAME = 'file.txt';
 const JSON_FILE_NAME = 'file.json';

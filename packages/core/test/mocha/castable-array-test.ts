@@ -9,8 +9,8 @@ import { Validation } from '../../';
 import { array } from '../../src/castable/array/array';
 
 const context = new Context({
+  commands: ['orbital'],
   cwd: __dirname,
-  commands: ['clime'],
 });
 
 class CastableFoo {
@@ -37,13 +37,13 @@ const CastableBar = {
 
 describe('Castable Array', () => {
   it('should cast primitive values', async () => {
-    let castingContext = buildCastingContext(context, {
+    const castingContext = buildCastingContext(context, {
+      default: false,
       name: 'test',
       validators: [],
-      default: false,
     });
 
-    await cast('foo, bar', Array(String), castingContext)
+    await cast('foo, bar', array(String), castingContext)
       .should.eventually.deep.equal(['foo', 'bar']);
 
     await cast('123, 456', array(Number), castingContext)
@@ -54,10 +54,10 @@ describe('Castable Array', () => {
   });
 
   it('should cast string-castable values', async () => {
-    let castingContext = buildCastingContext(context, {
+    const castingContext = buildCastingContext(context, {
+      default: false,
       name: 'test',
       validators: [],
-      default: false,
     });
 
     await cast('yo, ha', array(CastableFoo), castingContext)

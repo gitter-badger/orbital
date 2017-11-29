@@ -1,10 +1,10 @@
 // tslint:disable:no-console
 import * as Util from 'util';
-import * as chalk from 'chalk';
 
-import { isPrintable } from '../object';
-import { ExpectedError } from '../error';
 import { CLI } from '../cli';
+import { ExpectedError } from '../error';
+import chalk from 'chalk';
+import { isPrintable } from '../object';
 
 /**
  * A Clime command line interface shim for pure Node.js.
