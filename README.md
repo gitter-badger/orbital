@@ -1,3 +1,4 @@
+![build](https://travis-ci.org/orbital-js/orbital.svg?branch=master)
 # Orbital
 Command line framework in Typescript for nodejs. Orbital is a fork of the [Clime](https://github.com/vilic/clime) framework.
 This is currently a work in progress.
